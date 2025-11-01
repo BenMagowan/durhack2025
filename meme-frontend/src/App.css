@@ -1,0 +1,97 @@
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Make background cover the full page */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Main container */
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* fills the entire screen */
+  text-align: center;
+  background: linear-gradient(to bottom right, #436624, #f8fafc); /* subtle gradient */
+  font-family: 'Inter', sans-serif;
+}
+
+/* Title */
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #000000;
+  font-family: "Comic Sans MS", serif;
+}
+
+/* Input box */
+input[type="text"] {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 1.5rem; /* more space between input and button */
+  width: 280px;
+  font-size: 1rem;
+  font-family: "Comic Sans MS", serif;
+}
+
+/* Button below input */
+button {
+  background-color: #2a4d15;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-family: "Comic Sans MS", serif;
+}
+
+button:hover {
+  background-color: #405f1c;
+}
