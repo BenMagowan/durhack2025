@@ -1,10 +1,11 @@
 import React from "react";
 import MemeInput from "./MemeInput";
+import "./App.css"
 
 function App() {
   return (
     <div className="App">
-      <h1>AI Meme Generator</h1>
+      <h1>AI Meme Generator 🦖</h1>
       <MemeInput />
     </div>
   );

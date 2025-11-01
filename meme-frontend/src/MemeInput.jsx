@@ -1,30 +1,32 @@
 import React, { useState } from "react";
 
 export default function MemeInput() {
-  const [prompt, setPrompt] = useState("");
-  const [imageFile, setImageFile] = useState(null);
+  const [prompt, setPrompt] = useState(""); //prompt stores what user types in text box, setPrompt updates as user types
   const [resultUrl, setResultUrl] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const API_URL = "http://localhost:5000/generate";
+  const API_URL = "http://localhost:5000/generate"; //TEMP: react will wait for a response from backend server
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("prompt", prompt);
-    if (imageFile) formData.append("image", imageFile);
+    setIsLoading(true);
 
     try {
       const response = await fetch(API_URL, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }), //sends prompt in json
       });
+
+      console.log(prompt)
 
       const data = await response.json();
       setResultUrl(data.imageUrl); //display meme from backend
     } catch (err) {
       console.error("Error:", err);
       alert("Failed to generate meme. Check console.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -34,21 +36,22 @@ export default function MemeInput() {
         <input
           type="text"
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={(e) => setPrompt(e.target.value)} //updated here
           placeholder="Enter meme caption"
         />
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImageFile(e.target.files[0])}
-        />
-        <button type="submit">Generate Meme</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Generating..." : "Generate Meme"}
+        </button>
       </form>
 
       {resultUrl && (
         <div>
           <h3>Generated Meme:</h3>
-          <img src={resultUrl} alt="AI generated meme" style={{ maxWidth: "400px" }} />
+          <img
+            src={resultUrl}
+            alt="AI generated meme"
+            style={{ maxWidth: "400px" }}
+          />
         </div>
       )}
     </div>
