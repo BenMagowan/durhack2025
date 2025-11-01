@@ -5,7 +5,7 @@ export default function MemeInput() {
   const [resultUrl, setResultUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const API_URL = "http://localhost:5000/generate"; //TEMP: react will wait for a response from backend server
+  const API_URL = "http://localhost:5000/generate-dinosaur"; //TEMP: react will wait for a response from backend server
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,3 +57,4 @@ export default function MemeInput() {
     </div>
   );
 }
+
