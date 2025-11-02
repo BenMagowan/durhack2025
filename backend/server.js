@@ -131,13 +131,14 @@ app.post("/api/generate-caption", async (req, res) => {
 
         console.log(`[GENERATE-CAPTION] Generating caption for: "${prompt}"`);
 
-        // TODO: Call Python script to generate caption text
-        // For now, return placeholder
+        // Call Python script to generate caption text
+        const result = await runPythonScript("generate_caption.py", [prompt]);
+
+        console.log(`[GENERATE-CAPTION] ✓ Generated caption`);
+
         res.json({
             success: true,
-            top_text: "TOP TEXT HERE",
-            bottom_text: "BOTTOM TEXT HERE",
-            message: "Caption generation not yet implemented"
+            ...result
         });
     } catch (error) {
         console.error("[GENERATE-CAPTION] Error:", error.message);
@@ -219,11 +220,7 @@ app.post("/generate-dinosaur", async (req, res) => {
 
         // Step 3: Generate caption (placeholder for now)
         console.log("[STEP 3/4] Generating caption text...");
-        // TODO: Replace with actual caption generation
-        const captionResult = {
-            top_text: "WHEN YOU REALIZE",
-            bottom_text: "IT'S MONDAY"
-        };
+        const captionResult = await runPythonScript("generate_caption.py", [prompt]);
         console.log(`[STEP 3/4] ✓ Caption: "${captionResult.top_text}" / "${captionResult.bottom_text}"`);
 
         // Step 4: Combine image + text (placeholder for now)

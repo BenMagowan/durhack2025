@@ -87,14 +87,43 @@ def pick_image(user_prompt):
     # Extract result
     content = result["choices"][0]["message"]["content"].strip()
     
-    # Parse JSON response
-    if content.startswith('```'):
-        content = content.split('```')[1]
-        if content.startswith('json'):
-            content = content[4:]
-        content = content.strip()
+    # Try to parse JSON response with several cleanup attempts
+    def extract_json(text):
+        # First try direct JSON parse
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            pass
+        
+        # Try to extract JSON from markdown code blocks
+        if '```' in text:
+            blocks = text.split('```')
+            for block in blocks:
+                # Remove language identifier if present
+                if block.startswith('json'):
+                    block = block[4:]
+                block = block.strip()
+                try:
+                    return json.loads(block)
+                except json.JSONDecodeError:
+                    continue
+        
+        # Try to find JSON-like structure between curly braces
+        try:
+            start = text.find('{')
+            end = text.rfind('}')
+            if start != -1 and end != -1:
+                return json.loads(text[start:end+1])
+        except json.JSONDecodeError:
+            pass
+        
+        # If all parsing attempts fail, create a default response
+        return {
+            "image_path": "dinosaur_photos/t-rex-1.jpg",  # Default to first T-Rex image
+            "reasoning": "Failed to parse LLM response, using default image"
+        }
     
-    llm_result = json.loads(content)
+    llm_result = extract_json(content)
     best_image_path = llm_result.get("image_path", "")
     reasoning = llm_result.get("reasoning", "Selected by LLM")
     
