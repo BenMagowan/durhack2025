@@ -5,7 +5,7 @@ export default function MemeInput() {
   const [resultUrl, setResultUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const API_URL = "http://localhost:5000/generate-dinosaur"; //TEMPORARY: react will wait for a response from backend server, currently set to the temporary server that runs in the TEST-combine-images.js
+  const API_URL = "http://localhost:8080/generate-dinosaur"; //TEMPORARY: react will wait for a response from backend server, currently set to the temporary server that runs in the TEST-combine-images.js
   //THIS WILL BE REPLACED WITH THE BACKEND SERVER 
 
   const handleSubmit = async (e) => {
