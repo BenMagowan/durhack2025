@@ -1,0 +1,57 @@
+{
+    "spongebob_mocking_meme.jpg": {
+        "description": "A distorted SpongeBob mocking pose from a popular cartoon.",
+        "top_text": "WHEN YOUR FRIEND SAYS",
+        "bottom_text": "\"I'M NEVER LATE\""
+    },
+    "waiting_skeleton_bench.jpg": {
+        "description": "A skeleton sitting on a bench in a relaxed pose.",
+        "top_text": "WHEN YOU'RE WAITING FOR YOUR CRUSH",
+        "bottom_text": "TO TEXT BACK..."
+    },
+    "handshake_agreement_meme.jpg": {
+        "description": "Two muscular arms in different shirts are clasped in a handshake, showing mutual agreement.",
+        "top_text": "WHEN YOU AND YOUR FRIEND",
+        "bottom_text": "FINALLY AGREE ON WHERE TO EAT"
+    },
+    "disaster_girl_smirk.jpg": {
+        "description": "A young girl gives a mischievous smile while a building burns in the background.",
+        "top_text": "WHEN YOU WALK AWAY",
+        "bottom_text": "AND EVERYTHING STARTS TO FALL APART"
+    },
+    "crazy_idea_meme.jpg": {
+        "description": "A space ranger enthusiastically pointing while a cowboy looks worried.",
+        "top_text": "WHEN YOUR FRIEND HAS A CRAZY IDEA",
+        "bottom_text": "AND YOU'RE NOT SURE ABOUT IT"
+    },
+    "always_has_been_earth.jpg": {
+        "description": "An astronaut holds a gun to another astronaut looking at Earth in space.",
+        "top_text": "Wait, it's all Earth?",
+        "bottom_text": "Always has been."
+    },
+    "winter_request_meme.jpg": {
+        "description": "A person standing outside in a winter coat looking directly at the camera.",
+        "top_text": "I AM ONCE AGAIN",
+        "bottom_text": "ASKING FOR YOUR ATTENTION"
+    },
+    "mocking_spongebob_meme.jpg": {
+        "description": "The image shows a distorted version of SpongeBob SquarePants mimicking a mocking gesture.",
+        "top_text": "WHEN YOUR FRIEND SAYS",
+        "bottom_text": "\"I'M NOT MOCKING YOU\""
+    },
+    "distracted_boyfriend_meme.jpg": {
+        "description": "A man looks at another woman while his girlfriend looks at him in disbelief.",
+        "top_text": "ME TRYING TO FOCUS ON WORK",
+        "bottom_text": "NEW HOBBY IDEAS"
+    },
+    "sad_blue_character_meme.jpg": {
+        "description": "An animated character with a blue face and big eyes looks up with a sad expression.",
+        "top_text": "WHEN YOU TRY YOUR BEST",
+        "bottom_text": "BUT YOU DON'T SUCCEED"
+    },
+    "excited_stage_gesture.jpg": {
+        "description": "A woman in a red outfit excitedly gestures with a microphone on a stage.",
+        "top_text": "YOU GET A MEME",
+        "bottom_text": "EVERYONE GETS A MEME"
+    }
+}

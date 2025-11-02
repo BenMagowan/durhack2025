@@ -1,176 +1,62 @@
-import sys
-import json
 import os
+import json
+import sys
+from dotenv import load_dotenv
 import urllib.request
 
-def pick_image(user_prompt):
-    """
-    Uses OpenRouter LLM to select the single most fitting dinosaur image
-    based on the prompt and the image metadata from dino_analysis.json.
-    
-    Args:
-        user_prompt: User's meme description
-        
-    Returns:
-        dict with image_path, filename, match_score, reasoning
-    """
-    # Load OpenRouter API key
-    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-    if not OPENROUTER_API_KEY:
-        raise ValueError("OPENROUTER_API_KEY environment variable not set")
-    
-    # Get the directory where this script is located
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    json_path = os.path.join(script_dir, "dino_analysis.json")
-    
-    # Load your JSON analysis file
-    if not os.path.exists(json_path):
-        raise FileNotFoundError(f"dino_analysis.json not found at: {json_path}")
-    
-    with open(json_path, "r", encoding="utf-8") as f:
-        image_data = json.load(f)
-    
-    if not image_data:
-        raise Exception("No images found in dino_analysis.json")
-    
-    # Create the context prompt
-    system_prompt = {
-        "role": "system",
-        "content": (
-            "You are a dinosaur image selector. You are given descriptions, emotions, "
-            "and scenes for many dinosaur images. Based on the user's meme idea, "
-            "choose ONLY the single most relevant image file path. "
-            "Respond with JSON: {\"image_path\": \"path/to/image.jpg\", \"reasoning\": \"why this matches\"}"
-            "Do not hallucinate image paths."
-        )
-    }
-    
-    # Convert image metadata to a readable string
-    image_summaries = "\n".join([
-        f"{path}: "
-        f"{v.get('description', 'No description provided')} | "
-        f"emotions: {', '.join(v.get('emotions', [])) or 'none'} | "
-        f"scene: {v.get('scene', 'unknown scene')}"
-        for path, v in image_data.items()
+load_dotenv()
+
+def pick_template(caption):
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    json_path = os.path.join(BASE_DIR, "image_descriptions.json")
+
+    with open(json_path) as f:
+        templates = json.load(f)
+
+
+    summaries = "\n".join([
+        f"{name}: {info['description']}"
+        for name, info in templates.items()
     ])
-    
-    user_message = {
-        "role": "user",
-        "content": (
-            f"The user wants a dinosaur meme about: '{user_prompt}'.\n\n"
-            f"Available images:\n{image_summaries}\n\n"
-            "Return JSON with the most suitable image file path and reasoning."
-        )
-    }
-    
-    # Send to OpenRouter API
-    data = {
+
+    prompt = {
         "model": "openai/gpt-4o-mini",
-        "messages": [system_prompt, user_message],
-        "temperature": 0.3,
+        "messages": [
+            {"role": "system", "content": (
+                "You are a meme template selector. Given a caption and some meme templates, "
+                "choose the most fitting one. Respond only in JSON like: "
+                "{\"filename\": \"filename.jpg\", \"reason\": \"why\"}"
+            )},
+            {"role": "user", "content": (
+                f"Caption: {caption}\n\nAvailable templates:\n{summaries}"
+            )}
+        ]
     }
-    
-    json_data = json.dumps(data).encode('utf-8')
-    
+
     req = urllib.request.Request(
         "https://openrouter.ai/api/v1/chat/completions",
-        data=json_data,
+        data=json.dumps(prompt).encode(),
         headers={
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
         },
-        method='POST'
+        method="POST"
     )
-    
-    with urllib.request.urlopen(req, timeout=30) as response:
-        result = json.loads(response.read().decode('utf-8'))
-    
-    # Extract result
-    content = result["choices"][0]["message"]["content"].strip()
-    
-    # Try to parse JSON response with several cleanup attempts
-    def extract_json(text):
-        # First try direct JSON parse
-        try:
-            return json.loads(text)
-        except json.JSONDecodeError:
-            pass
-        
-        # Try to extract JSON from markdown code blocks
-        if '```' in text:
-            blocks = text.split('```')
-            for block in blocks:
-                # Remove language identifier if present
-                if block.startswith('json'):
-                    block = block[4:]
-                block = block.strip()
-                try:
-                    return json.loads(block)
-                except json.JSONDecodeError:
-                    continue
-        
-        # Try to find JSON-like structure between curly braces
-        try:
-            start = text.find('{')
-            end = text.rfind('}')
-            if start != -1 and end != -1:
-                return json.loads(text[start:end+1])
-        except json.JSONDecodeError:
-            pass
-        
-        # If all parsing attempts fail, create a default response
-        return {
-            "image_path": "dinosaur_photos/t-rex-1.jpg",  # Default to first T-Rex image
-            "reasoning": "Failed to parse LLM response, using default image"
-        }
-    
-    llm_result = extract_json(content)
-    best_image_path = llm_result.get("image_path", "")
-    reasoning = llm_result.get("reasoning", "Selected by LLM")
-    
-    # Get filename from path
-    filename = os.path.basename(best_image_path)
-    
-    # Return in expected format
-    return {
-        "image_path": best_image_path,
-        "filename": filename,
-        "match_score": 0.85,  # You can add scoring logic if needed
-        "reasoning": reasoning,
-        "analysis": image_data.get(best_image_path, {})
-    }
 
-
-def main():
-    if len(sys.argv) < 2:
-        print(json.dumps({"error": "No prompt provided"}))
-        sys.exit(1)
-    
-    prompt = sys.argv[1]
-    
-    try:
-        result = pick_image(prompt)
-        print(json.dumps(result))
-    except FileNotFoundError as e:
-        print(json.dumps({
-            "error": f"File not found: {str(e)}",
-            "hint": "Make sure dino_analysis.json exists in the same directory"
-        }), file=sys.stderr)
-        sys.exit(1)
-    except KeyError as e:
-        print(json.dumps({
-            "error": f"Missing key in JSON: {str(e)}",
-            "hint": "Check dino_analysis.json format"
-        }), file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        import traceback
-        print(json.dumps({
-            "error": str(e),
-            "type": type(e).__name__,
-            "traceback": traceback.format_exc()
-        }), file=sys.stderr)
-        sys.exit(1)
+    with urllib.request.urlopen(req) as r:
+        data = json.loads(r.read().decode())
+    return data["choices"][0]["message"]["content"].strip()
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 2:
+        print("Usage: python generate_caption.py '<meme caption>'")
+        sys.exit(1)
+    caption = sys.argv[1]
+    response = pick_template(caption)
+
+    try:
+        result = json.loads(response)
+        print(json.dumps(result))
+    except json.JSONDecodeError:
+        print(f"Error parsing JSON response:\n{response}")
