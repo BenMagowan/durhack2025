@@ -2,6 +2,7 @@ from PIL import Image, ImageDraw, ImageFont
 import json
 import sys
 import os
+import time
 
 def generate_meme(image_path, top_text, bottom_text):
     try:
@@ -48,7 +49,7 @@ def generate_meme(image_path, top_text, bottom_text):
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         filename = os.path.basename(image_path)
-        output_path = os.path.join(output_dir, filename.replace(".jpg", "_meme.jpg"))
+        output_path = os.path.join(output_dir, filename.replace(".jpg", f"_{str(int(time.time() * 1000))}.jpg"))
         img.save(output_path)
         
         return {
