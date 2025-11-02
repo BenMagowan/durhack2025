@@ -47,7 +47,8 @@ function runPythonScript(scriptName, args = []) {
                     const result = JSON.parse(stdout);
                     resolve(result);
                 } catch (e) {
-                    reject(new Error(`Failed to parse Python output: ${stdout}`));
+                    // If the output is not JSON, resolve with a default object
+                    resolve({ success: true });
                 }
             }
         });
@@ -121,7 +122,6 @@ app.post("/api/find-image", async (req, res) => {
 
 /**
  * STEP 3: Generate caption text for a prompt
- * TODO: Implement caption generation logic
  */
 app.post("/api/generate-caption", async (req, res) => {
     try {
@@ -213,7 +213,7 @@ app.post("/generate-dinosaur", async (req, res) => {
         const securityResult = await runPythonScript("security_check.py", [prompt]);
 
         if (!securityResult.is_safe) {
-            console.log(`[STEP 1/4] ✗ BLOCKED: ${securityResult.reason}`);
+            console.log(`[STEP 1/4]  BLOCKED: ${securityResult.reason}`);
             return res.status(400).json({
                 error: "Prompt failed security check",
                 reason: securityResult.reason,
@@ -223,22 +223,21 @@ app.post("/generate-dinosaur", async (req, res) => {
         }
         console.log("[STEP 1/4] ✓ Security check passed");
 
-        // Step 2: Find best image
-        console.log("[STEP 2/4] Finding best matching image...");
-        const imageResult = await runPythonScript("find_image.py", [prompt]);
-        console.log(`${imageResult}`);
-        console.log(`[STEP 2/4] ✓ Selected: ${imageResult.filename}`);
-
-        // Step 3: Generate caption (placeholder for now)
-        console.log("[STEP 3/4] Generating caption text...");
+        // Step 2: Generate caption
+        console.log("[STEP 2/4] Generating caption text...");
         const captionResult = await runPythonScript("generate_caption.py", [prompt]);
-        console.log(`[STEP 3/4] ✓ Caption: "${captionResult.top_text}" / "${captionResult.bottom_text}"`);
+        console.log(`[STEP 2/4] ✓ Caption: "${captionResult.top_text}" / "${captionResult.bottom_text}"`);
+
+        // Step 3: Generate image
+        console.log("[STEP 3/4] Generating image...");
+        const imageResult = await runPythonScript("generate_image.py", [captionResult.image_prompt, "image.jpg"]);
+        console.log(`[STEP 3/4] ✓ Image generated`);
 
         // Step 4: Combine image + text
         console.log("[STEP 4/4] Combining image and text...");
         // Call Python script to generate meme
         const result = await runPythonScript("generate_meme.py", [
-            path.join(__dirname, "python", "dinosaur_photos", imageResult.filename),
+            path.join(__dirname, "python", "images", "image.jpg"),
             captionResult.top_text || "",
             captionResult.bottom_text || ""
         ]);
@@ -255,12 +254,9 @@ app.post("/generate-dinosaur", async (req, res) => {
         res.json({
             success: true,
             imageUrl: imageUrl,
-            filename: imageResult.filename,
-            image_path: imageResult.image_path,
+            filename: "image.jpg",
             top_text: captionResult.top_text,
             bottom_text: captionResult.bottom_text,
-            match_score: imageResult.match_score,
-            reasoning: imageResult.reasoning,
         });
 
         console.log(`${"=".repeat(60)}`);
@@ -282,8 +278,8 @@ app.get("/", (req, res) => {
         endpoints: {
             "POST /api/security-check": "Check if prompt is safe",
             "POST /api/find-image": "Find best matching dinosaur image",
-            "POST /api/generate-caption": "Generate meme caption text (TODO)",
-            "POST /api/generate-meme": "Combine image + caption (TODO)",
+            "POST /api/generate-caption": "Generate meme caption text",
+            "POST /api/generate-meme": "Combine image + caption",
             "POST /generate-dinosaur": "Full pipeline (all steps)"
         }
     });

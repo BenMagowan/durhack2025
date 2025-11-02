@@ -15,14 +15,16 @@ def generate_caption(prompt):
     Generate a single short meme caption using OpenRouter API.
     """
     system_prompt = """
-    You are a meme caption generator.
+    You are a meme caption and image prompt generator.
 
     Given a user's description of an image, you must produce a short, funny caption suitable for a meme.
+    Also return a prompt that can be used to generate an image for the meme.
 
     Return your output only as a valid JSON object with the following format:
     {
     "top_text": "Top Text",
-    "bottom_text": "Bottom Text"
+    "bottom_text": "Bottom Text",
+    "image_prompt": "Generate an image for a meme with this description"
     }
 
     Rules:
@@ -30,6 +32,8 @@ def generate_caption(prompt):
     - Keep each caption under 50 characters.
     - Be creative and humorous, but avoid offensive or NSFW content.
     - If the description already suggests text, integrate it naturally.
+    - The image_prompt should vividly describe the scene for image generation.
+    - Ensure the JSON is properly formatted.
     """
 
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")

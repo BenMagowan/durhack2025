@@ -14,9 +14,9 @@ def generate_meme(image_path, top_text, bottom_text):
         # Calculate font size based on image width
         font_size = int(img.width / 15)
         try:
-            font = ImageFont.truetype("Arial", font_size)
+            font = ImageFont.truetype("Impact", font_size)
         except:
-            # Fallback to default font if Arial is not available
+            # Fallback to default font if Impact is not available
             font = ImageFont.load_default()
         
         # Function to draw text with outline
