@@ -1,37 +1,75 @@
-import sys
+from PIL import Image, ImageDraw, ImageFont
 import json
-from dinosaur_scraper import DinosaurMemeGenerator
+import sys
+import os
 
-def main():
-    if len(sys.argv) < 2:
-        print(json.dumps({"error": "No prompt provided"}))
-        sys.exit(1)
-    
-    prompt = sys.argv[1]
-    
+def generate_meme(image_path, top_text, bottom_text):
     try:
-        generator = DinosaurMemeGenerator()
+        # Open the image
+        img = Image.open(image_path)
         
-        # Find best matching image
-        match_result = generator.find_best_match(prompt)
+        # Create a drawing object
+        draw = ImageDraw.Draw(img)
         
-        # Generate meme text
-        text_result = generator.generate_meme_text(prompt, match_result['analysis'])
+        # Calculate font size based on image width
+        font_size = int(img.width / 15)
+        try:
+            font = ImageFont.truetype("Arial", font_size)
+        except:
+            # Fallback to default font if Arial is not available
+            font = ImageFont.load_default()
         
-        # Combine results
-        result = {
-            'image_path': match_result['image_path'],
-            'filename': match_result['filename'],
-            'top_text': text_result.get('top_text', ''),
-            'bottom_text': text_result.get('bottom_text', ''),
-            'match_score': match_result['match_score'],
-            'reasoning': match_result['reasoning']
+        # Function to draw text with outline
+        def draw_text_with_outline(text, y_position):
+            # Get text size
+            text_width = draw.textlength(text, font=font)
+            x = (img.width - text_width) / 2
+            
+            # Draw outline (black)
+            outline_color = "black"
+            for offset_x in [-2, 2]:
+                for offset_y in [-2, 2]:
+                    draw.text((x + offset_x, y_position + offset_y), text, font=font, fill=outline_color)
+            
+            # Draw main text (white)
+            draw.text((x, y_position), text, font=font, fill="white")
+        
+        # Draw top text
+        if top_text:
+            draw_text_with_outline(top_text, 10)
+        
+        # Draw bottom text
+        if bottom_text:
+            text_height = font_size
+            draw_text_with_outline(bottom_text, img.height - text_height - 10)
+        
+        # Save the image to /memes directory
+        output_dir = os.path.join(os.path.dirname(__file__), "memes")
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        filename = os.path.basename(image_path)
+        output_path = os.path.join(output_dir, filename.replace(".jpg", "_meme.jpg"))
+        img.save(output_path)
+        
+        return {
+            "success": True,
+            "output_path": output_path
         }
         
-        print(json.dumps(result))
     except Exception as e:
-        print(json.dumps({"error": str(e)}))
-        sys.exit(1)
+        return {
+            "success": False,
+            "error": str(e)
+        }
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 4:
+        print(json.dumps({"success": False, "error": "Missing arguments"}))
+        sys.exit(1)
+        
+    image_path = sys.argv[1]
+    top_text = sys.argv[2]
+    bottom_text = sys.argv[3]
+    
+    result = generate_meme(image_path, top_text, bottom_text)
+    print(json.dumps(result))

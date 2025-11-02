@@ -41,6 +41,7 @@ def pick_image(user_prompt):
             "and scenes for many dinosaur images. Based on the user's meme idea, "
             "choose ONLY the single most relevant image file path. "
             "Respond with JSON: {\"image_path\": \"path/to/image.jpg\", \"reasoning\": \"why this matches\"}"
+            "Do not hallucinate image paths."
         )
     }
     
@@ -64,7 +65,7 @@ def pick_image(user_prompt):
     
     # Send to OpenRouter API
     data = {
-        "model": "anthropic/claude-3.5-haiku",
+        "model": "openai/gpt-4o-mini",
         "messages": [system_prompt, user_message],
         "temperature": 0.3,
     }

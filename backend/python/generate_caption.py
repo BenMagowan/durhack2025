@@ -44,6 +44,7 @@ def generate_caption(prompt):
             },
             data=json.dumps({
                 "model": "openai/gpt-4o-mini", # Optional
+                "temperature": 0.3,
                 "messages": [
                     {
                         "role": "system",

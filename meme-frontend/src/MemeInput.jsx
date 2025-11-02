@@ -13,21 +13,22 @@ export default function MemeInput() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }), //sends input prompt in json, will be received by security check
-      });
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt }), 
+        });
 
-      console.log(prompt)
+        console.log(prompt)
 
-      const data = await response.json(); //this comes from the image and text combiner (currently TEST-combine-images)
-      setResultUrl(data.imageUrl); //display meme from backend
+        const data = await response.json(); 
+        console.log("Response from backend:", data);
+        setResultUrl(data.imageUrl); 
     } catch (err) {
-      console.error("Error:", err);
-      alert("Failed to generate meme. Check console.");
+        console.error("Error:", err);
+        alert("Failed to generate meme. Check console.");
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 

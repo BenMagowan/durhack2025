@@ -6,12 +6,14 @@ import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const MEME_FOLDER = path.join(__dirname, "python/memes");
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/memes", express.static(MEME_FOLDER));
 
 // Path to Python scripts
 const PYTHON_DIR = path.join(__dirname, "python");
@@ -165,12 +167,21 @@ app.post("/api/generate-meme", async (req, res) => {
         console.log(`  Top: "${top_text}"`);
         console.log(`  Bottom: "${bottom_text}"`);
 
-        // TODO: Call your image combiner (TEST-combine-images.js equivalent)
-        // For now, return placeholder
+        // Call Python script to generate meme
+        const result = await runPythonScript("generate_meme.py", [
+            path.join(PYTHON_DIR, "dinosaur_photos", filename),
+            top_text || "",
+            bottom_text || ""
+        ]);
+
+        if (!result.success) {
+            throw new Error(result.error);
+        }
+
         res.json({
             success: true,
-            imageUrl: `/memes/${filename}`, // Placeholder URL
-            message: "Meme image combination not yet implemented"
+            imageUrl: result.output_path,
+            message: "Meme generated successfully"
         });
     } catch (error) {
         console.error("[GENERATE-MEME] Error:", error.message);
@@ -223,16 +234,27 @@ app.post("/generate-dinosaur", async (req, res) => {
         const captionResult = await runPythonScript("generate_caption.py", [prompt]);
         console.log(`[STEP 3/4] ✓ Caption: "${captionResult.top_text}" / "${captionResult.bottom_text}"`);
 
-        // Step 4: Combine image + text (placeholder for now)
+        // Step 4: Combine image + text
         console.log("[STEP 4/4] Combining image and text...");
-        // TODO: Call your image combiner here
-        const finalMemeUrl = `/memes/${imageResult.filename}`;
-        console.log(`[STEP 4/4] ✓ Meme created: ${finalMemeUrl}`);
+        // Call Python script to generate meme
+        const result = await runPythonScript("generate_meme.py", [
+            path.join(__dirname, "python", "dinosaur_photos", imageResult.filename),
+            captionResult.top_text || "",
+            captionResult.bottom_text || ""
+        ]);
 
-        // Return complete result
+        if (!result.success) {
+            throw new Error(result.error);
+        }
+
+        // Log the final meme URL
+        console.log(`[STEP 4/4] ✓ Meme created: ${result.output_path}`);
+
+        // Return complete result with the image
+        const imageUrl = `http://localhost:8080/memes/${result.output_path.split('/').pop()}`;
         res.json({
             success: true,
-            imageUrl: finalMemeUrl,
+            imageUrl: imageUrl,
             filename: imageResult.filename,
             image_path: imageResult.image_path,
             top_text: captionResult.top_text,
@@ -244,7 +266,7 @@ app.post("/generate-dinosaur", async (req, res) => {
         console.log(`${"=".repeat(60)}`);
         console.log("[PIPELINE] ✓ Complete!\n");
     } catch (error) {
-        console.error("[PIPELINE] ✗ Error:", error.message);
+        console.error("[PIPELINE]  Error:", error.message);
         res.status(500).json({
             error: "Meme generation pipeline failed",
             message: error.message,
