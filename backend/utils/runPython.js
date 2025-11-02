@@ -1,27 +1,36 @@
 import { spawn } from "child_process";
 import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PYTHON_DIR = path.join(__dirname, "../python");
 
 export function runPython(scriptName, args = []) {
     return new Promise((resolve, reject) => {
-        const process = spawn("python3", [path.join(PYTHON_DIR, scriptName), ...args]);
-        let stdout = "";
-        let stderr = "";
+        const pythonCmd = process.platform === "win32" ? "python" : "python3"; // ✅ cross-platform
+        const scriptPath = path.join(__dirname, "../python", scriptName);
 
-        process.stdout.on("data", (data) => (stdout += data));
-        process.stderr.on("data", (data) => (stderr += data));
+        const pyProcess = spawn(pythonCmd, [scriptPath, ...args]);
 
-        process.on("close", (code) => {
-            if (code !== 0) return reject(new Error(stderr || "Python script failed"));
+        let output = "";
+        pyProcess.stdout.on("data", (data) => {
+            output += data.toString();
+        });
+
+        let error = "";
+        pyProcess.stderr.on("data", (data) => {
+            error += data.toString();
+        });
+
+        pyProcess.on("close", (code) => {
+            if (code !== 0) {
+                return reject(new Error(error || `Python exited with code ${code}`));
+            }
+
             try {
-                resolve(JSON.parse(stdout));
-            } catch {
-                resolve({ success: true, output: stdout.trim() });
+                const json = JSON.parse(output);
+                resolve(json);
+            } catch (e) {
+                resolve({ raw_output: output.trim() });
             }
         });
+
+        pyProcess.on("error", (err) => reject(err)); // captures ENOENT too
     });
 }
