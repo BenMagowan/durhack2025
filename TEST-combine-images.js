@@ -2,7 +2,7 @@
 
 const express = require("express");
 const multer = require("multer");
-const Jimp = require("jimp"); //install jimp
+const Jimp = require("jimp"); //INSTALL JIMP with 'npm install jimp@0.16.1'
 const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
