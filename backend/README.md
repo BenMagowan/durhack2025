@@ -1,11 +1,11 @@
-# 🦖 Dinosaur Meme Generator Backend
+# Meme Generator Backend
 
 This backend powers the **Dinosaur Meme Generator**, an AI-assisted meme creator that turns user prompts into funny dinosaur memes.
 Built with **Node.js + Express** and **Python scripts** for AI captioning and image generation.
 
 ---
 
-## ⚙️ Setup
+## Setup
 
 ### Prerequisites
 
@@ -20,38 +20,15 @@ npm install
 node server.js
 ```
 
-Server runs on [http://localhost:5000](http://localhost:5000)
+Server runs on [http://localhost:8080](http://localhost:8080)
 
 ---
 
-## 🧱 Structure
-
-```
-backend/
-├── server.js              # Entry point
-├── routes/                # Express routes
-│   ├── security.js        # Safety check
-│   ├── image.js           # Find/generate dino image
-│   ├── caption.js         # Create top/bottom text
-│   ├── meme.js            # Combine image + caption
-│   └── pipeline.js        # Full pipeline
-├── utils/
-│   └── runPython.js       # Python subprocess helper
-└── python/                # Image + AI scripts
-    ├── find_image.py
-    ├── generate_caption.py
-    ├── generate_image.py
-    ├── generate_meme.py
-    ├── security_check.py
-    ├── memes/             # Final output (served at /memes)
-```
-
----
-
-## 🔄 Meme Generation Pipeline
+## Meme Generation Pipeline
 
 **Endpoint:**
-`POST /api/pipeline`
+`POST /legacy-meme`
+`POST /nanobanana-meme`
 
 **Input:**
 
@@ -71,52 +48,14 @@ backend/
     http://localhost:5000/memes/<filename>.jpg
     ```
 
-**Example Response:**
+## Endpoints
 
-```json
-{
-    "success": true,
-    "top_text": "TECH REX",
-    "bottom_text": "CAN’T TYPE WITH TINY ARMS",
-    "imageUrl": "http://localhost:5000/memes/TRex_42_meme.jpg"
-}
-```
-
----
-
-## 🧠 Other Endpoints
-
-| Route           | Method | Description                   |
-| --------------- | ------ | ----------------------------- |
-| `/api/security` | POST   | Prompt safety filter          |
-| `/api/image`    | POST   | Find/generate dinosaur image  |
-| `/api/caption`  | POST   | Generate meme captions        |
-| `/api/meme`     | POST   | Combine image + text          |
-| `/api/pipeline` | POST   | Full meme-generation pipeline |
-| `/memes/:file`  | GET    | Serve generated memes         |
-
----
-
-## 🌐 Frontend Integration
-
-Images are public at:
-
-```
-/memes/<filename>.jpg
-```
-
-Example in React:
-
-```jsx
-<img src={`${API_BASE}/memes/TRex_42_meme.jpg`} alt="meme" />
-```
-
----
-
-## 🧾 License
-
-MIT License © 2025 Dinosaur Meme Team 🦕
-
----
-
-Would you like me to add a short **“for teammates”** setup section (clone → run backend → connect frontend)? It can fit just below Setup.
+| Route                   | Method | Description                           |
+| ----------------------- | ------ | ------------------------------------- |
+| `/api/security-check`   | POST   | Prompt safety filter                  |
+| `/api/find-image`       | POST   | Find most relevent image              |
+| `/api/generate-caption` | POST   | Generate meme captions                |
+| `/api/generate-meme`    | POST   | Combine image + text                  |
+| `/legacy-meme`          | POST   | Full meme caption generation pipeline |
+| `/nanobanana-meme`      | POST   | Caption and Image generation pipeline |
+| `/memes/:file`          | GET    | Serve generated memes                 |
