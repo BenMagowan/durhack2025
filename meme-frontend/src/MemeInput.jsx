@@ -5,7 +5,8 @@ export default function MemeInput() {
   const [resultUrl, setResultUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const API_URL = "http://localhost:5000/generate-dinosaur"; //TEMP: react will wait for a response from backend server
+  const API_URL = "http://localhost:5000/generate-dinosaur"; //TEMPORARY: react will wait for a response from backend server, currently set to the temporary server that runs in the TEST-combine-images.js
+  //THIS WILL BE REPLACED WITH THE BACKEND SERVER 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,12 +16,12 @@ export default function MemeInput() {
       const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }), //sends prompt in json
+        body: JSON.stringify({ prompt }), //sends input prompt in json, will be received by security check
       });
 
       console.log(prompt)
 
-      const data = await response.json();
+      const data = await response.json(); //this comes from the image and text combiner (currently TEST-combine-images)
       setResultUrl(data.imageUrl); //display meme from backend
     } catch (err) {
       console.error("Error:", err);
