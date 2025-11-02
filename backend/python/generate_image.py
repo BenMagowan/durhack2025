@@ -5,6 +5,8 @@ import sys
 import json
 import base64
 import requests
+from PIL import Image
+from io import BytesIO
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -27,6 +29,10 @@ def generate_image(prompt, out_path):
                     {"role": "user", "content": prompt}
                 ],
                 "modalities": ["image", "text"],
+                "image_config": {
+                    "aspect_ratio": "16:9"
+                },
+                "temperature": 0.7,
             })
         )
         response.raise_for_status()
@@ -51,8 +57,10 @@ def generate_image(prompt, out_path):
     b64 = m.group(2)
     image_bytes = base64.b64decode(b64)
 
-    with open(out_path, "wb") as f:
-        f.write(image_bytes)
+    img = Image.open(BytesIO(image_bytes))
+    img = img.resize((250, 175), Image.Resampling.LANCZOS)
+
+    img.save(out_path, format="PNG")
 
     print(f"Saved image to {out_path}")
 
